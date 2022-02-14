@@ -7,16 +7,17 @@ The repository contains three folders:
 
   1. National_Level
   2. State_Level
-  3. Additional_Graphics
+  3. Robustness
+  4. Additional_Graphics
 
 
 ## National_Level
 
-The folder contains two scripts: "US_grid_search_models.py" and "US_SHAP_explanation.py". The first one should be used to perform national-level grid search for the nine selected algorithmic approaches. The second instead performs SHAP explanation modeling using the best performing algorithm (and configuration) found after grid search. 
+The folder contains two scripts: "US_grid_search_models.py" and "US_SHAP_explanation.py". The first one should be used to perform national-level grid search for the nine selected algorithmic approaches. The second instead performs SHAP explanation modeling using the best performing algorithm (and configuration) found after grid search. Pre-processed pickle files are available for replication. Original data have to be gathered directly from the MAP website.
 
 ## State_Level
 
-Similarly, this folder also contains two scripts: "state_wise_prediction.py" and "state_wise_SHAP.py". The first one performs grid search for XGBoost hyperparameters on each state dataset. The second, perform SHAP explanation modeling using the best configuration of XGBoost per each state, as found in the previous script. 
+Similarly, this folder also contains two scripts: "state_wise_prediction.py" and "state_wise_SHAP.py". The first one performs grid search for XGBoost hyperparameters on each state dataset. The second, perform SHAP explanation modeling using the best configuration of XGBoost per each state, as found in the previous script. Pre-processed pickle files are available for replication. Original data have to be gathered directly from the MAP website
 
 ## Robustness
 
