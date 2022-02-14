@@ -18,6 +18,10 @@ The folder contains two scripts: "US_grid_search_models.py" and "US_SHAP_explana
 
 Similarly, this folder also contains two scripts: "state_wise_prediction.py" and "state_wise_SHAP.py". The first one performs grid search for XGBoost hyperparameters on each state dataset. The second, perform SHAP explanation modeling using the best configuration of XGBoost per each state, as found in the previous script. 
 
+## Robustness
+
+This folder contains the script to compare the explainability outcomes cross checking data from the MAP dataset with data collected by the Washington Post on homicides from the "Unsolved Homicides" database at https://github.com/washingtonpost/data-homicides. 
+
 ## Additional_Graphics
 
 This folder contains two scripts: "descriptive_visualization.py" and "visualization_US_gridsearched_models". These contain code for replicating some of the figures presented in the paper, particularly those referring to description of the dataset and evaluation of national level grid-searched models. Code for the other plots is embedded in the other scripts contained in the other two folders. 
