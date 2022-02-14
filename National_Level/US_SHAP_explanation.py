@@ -259,26 +259,6 @@ print("Balanced_Accuracy", balanced_accuracy_score(Y_validation, mod_pred))
 print("Precision_Accuracy", precision_score(Y_validation, mod_pred))
 print ("Zero one Loss", zero_one_loss(Y_validation, mod_pred, normalize=False)) # to count raw number of wrongly classified observations
 
-# comparison with second best and worst among best configurations
-
-gbc =GradientBoostingClassifier(random_state=42,
-                         n_estimators=200, learning_rate=0.5)
-
-
-gbc.fit(X_train, Y_train)
-gbc_pred = gbc.predict(X_validation)
-print("Balanced_Accuracy", balanced_accuracy_score(Y_validation, gbc_pred))
-print("Precision_Accuracy", precision_score(Y_validation, gbc_pred))
-print ("Zero one Loss", zero_one_loss(Y_validation, gbc_pred, normalize=False))
-
-
-lda = LinearDiscriminantAnalysis(shrinkage='auto', solver='lsqr')
-lda.fit(X_train, Y_train)
-lda_pred = lda.predict(X_validation)
-print("Balanced_Accuracy", balanced_accuracy_score(Y_validation, lda_pred))
-print("Precision_Accuracy", precision_score(Y_validation, lda_pred))
-print ("Zero one Loss", zero_one_loss(Y_validation, lda_pred, normalize=False))
-
 
 
 ''' SHAP model with best performing algorithm and configuration '''
