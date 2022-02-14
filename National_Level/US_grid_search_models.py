@@ -1,5 +1,6 @@
 import pandas as pd, numpy as np, os, seaborn as sns
 from matplotlib import pyplot as plt
+from dask import dataframe as dd
 from sklearn.utils import shuffle
 from lazypredict.Supervised import LazyClassifier, LazyRegressor
 import sklearn as sk
@@ -40,8 +41,6 @@ from xgboost import XGBClassifier
 np.set_printoptions(suppress=True)
 %matplotlib qt
 import matplotlib
-matplotlib.rcParams['font.sans-serif'] = "Microsoft Sans Serif"
-matplotlib.rcParams['font.family'] = "sans-serif"
 
 
 df = pd.read_csv('SHR76_19.csv', delimiter=',')
@@ -139,17 +138,13 @@ def age_cat(VicAge):
 df_red['Age_Cat'] = df_red.apply(lambda x: age_cat(x['VicAge']), axis=1) 
 df_red.sort_values('VicRace', ascending=False, inplace=True)
 
-df_d = pd.get_dummies(df_red, columns = ['Decade', 'Month', 'Homicide', 'VicSex', 'Age_Cat', 'Weapon', 'Circumstance', 'Agentype', 'VicRace',  'Monthly_Overlap','Solved'],drop_first=True)
-
-df_d.drop('ID', axis=1, inplace=True)
-df_d.drop('Year', axis=1, inplace=True)
-df_d.drop('State', axis=1, inplace=True)
-df_d.drop('VicAge', axis=1, inplace=True)  # 'Decade_70s', 'Month_January', 'Age_Cat_26-30', 'Weapon_Knife or cutting instrument','Circumstance_Burglary','Agentype_Municipal police', 'VicRace_White',
+df_d = pd.get_dummies(df_red, columns = ['Decade', 'Month', 'Homicide', 
+                                          'VicSex', 'Age_Cat', 'Weapon', 'Circumstance', 
+                                          'Agentype', 'VicRace',  'Monthly_Overlap','Solved'], drop_first=False)
 
 
-
-# shuffle to avoid any potential temporal order
-df_d = shuffle(df_d)
+df_d.drop(['Year', 'ID', 'VicAge', 'Homicide_Murder and non-negligent manslaughter', 'Monthly_Overlap_False','Solved_No'], axis=1, inplace=True)
+df_d = shuffle(df_d) # shuffle to avoid temporal ordering/covariate shift
 
 # dataset creation
 X = df_d.iloc[:,0:-1]
@@ -157,10 +152,11 @@ y = df_d.iloc[:,-1]
 
 X_train, X_validation, Y_train, Y_validation = train_test_split(X, y, test_size=0.3, random_state=1)
 
+
 # Rename columsn for better visualization
 
 X_train.rename(columns={"VicCount":"N of Victims", "OffCount": "N of Offenders", "Decade_10s": "Decade: 2010s", "Decade_70s": "Decade: 1970s", "Decade_80s": "Decade: 1980s",
-                             "Decade_90s": "Decade: 1990s", "Month_August": "Month: August", "Month_December": "Month: December", "Month_February": "Month: February",
+                             "Decade_90s": "Decade: 1990s", "Decade_00s": "Decade:2000s", "Month_August": "Month: August", "Month_December": "Month: December", "Month_February": "Month: February",
                              "Month_January": "Month: January", "Month_July": "Month: July", "Month_June": "Month: June", "Month_March": "Month: March", "Month_May": "Month: May",
                              "Month_November": "Month: November", "Month_October": "Month: October", "Month_September": "Month: September",
                              "Homicide_Murder and non-negligent manslaughter": "Type: Murder and Non-negl. Manslaughter", "VicSex_Female": "Victim Sex: Female","VicSex_Male": "Victim Sex: Male",
@@ -210,7 +206,7 @@ X_train.rename(columns={"VicCount":"N of Victims", "OffCount": "N of Offenders",
                              }, inplace=True)
 
 X_validation.rename(columns={"VicCount":"N of Victims", "OffCount": "N of Offenders", "Decade_10s": "Decade: 2010s", "Decade_70s": "Decade: 1970s", "Decade_80s": "Decade: 1980s",
-                             "Decade_90s": "Decade: 1990s", "Month_August": "Month: August", "Month_December": "Month: December", "Month_February": "Month: February",
+                             "Decade_90s": "Decade: 1990s", "Decade_00s": "Decade:2000s","Month_August": "Month: August", "Month_December": "Month: December", "Month_February": "Month: February",
                              "Month_January": "Month: January", "Month_July": "Month: July", "Month_June": "Month: June", "Month_March": "Month: March", "Month_May": "Month: May",
                              "Month_November": "Month: November", "Month_October": "Month: October", "Month_September": "Month: September",
                              "Homicide_Murder and non-negligent manslaughter": "Type: Murder and Non-negl. Manslaughter", "VicSex_Female": "Victim Sex: Female","VicSex_Male": "Victim Sex: Male",
@@ -260,8 +256,8 @@ X_validation.rename(columns={"VicCount":"N of Victims", "OffCount": "N of Offend
                              }, inplace=True)
 
 
-# saving sets to preserve dataset
-
+# saving sets
+import pickle
 USA_Xtrain_set = open("USA_Xtrain_set.pkl","wb")
 pickle.dump(X_train,USA_Xtrain_set )
 USA_Xtrain_set.close()
@@ -279,6 +275,13 @@ USA_Yvalidation_set = open("USA_Yvalidation_set.pkl","wb")
 pickle.dump(Y_validation,USA_Yvalidation_set )
 USA_Yvalidation_set.close()
 
+#upload them
+X_train = pickle.load(open("USA_Xtrain_set.pkl", "rb"))
+X_validation =  pickle.load(open("USA_Xvalidation_set.pkl", "rb"))
+Y_train= pickle.load(open("USA_Ytrain_set.pkl", "rb"))
+Y_validation =  pickle.load(open("USA_Yvalidation_set.pkl", "rb"))
+
+
 #freeing up memory
 
 del df
@@ -286,9 +289,7 @@ del df_red
 del df_d
 
 
-
-
-'''grid-search models'''
+'''grid search models'''
 
 
 ########################### lasso, ridge regression
@@ -301,7 +302,7 @@ lr_space['penalty'] = ['l1', 'l2']
 lr_space['C']= [0.01, 0.5, 1, 5, 10, 50]
 
 scoring = ['accuracy', 'balanced_accuracy', 'f1', 'precision', 'recall']
-lr_search = GridSearchCV(lr_model, lr_space, scoring=scoring, n_jobs=4, cv=cv, verbose= 1, refit='balanced_accuracy')
+lr_search = GridSearchCV(lr_model, lr_space, scoring=scoring, n_jobs=5, cv=cv, verbose= 1, refit='balanced_accuracy')
 
 lr_result = lr_search.fit(X_train, Y_train)
 # summarize result
@@ -322,11 +323,14 @@ lr_results_df = (
     )
     .rename_axis('kernel')
 )
+#lr_results_df[
+#    ['params', 'rank_test_score', 'mean_test_score', 'std_test_score']
+#]
 
 lr_results_df.to_csv('log_test1.csv')
 
 
-################### elastic net
+############# elastic net
 
 ela_model = LogisticRegression(random_state=42)
 cv = StratifiedKFold(n_splits=5, random_state=1)
@@ -454,11 +458,12 @@ xgb_cv = StratifiedKFold(n_splits=5, random_state=1)
 xgb_model = XGBClassifier(objective="reg:logistic", random_state=42)
 xgb_space = dict()
 xgb_space['n_estimators']=[50, 100, 200]
-xgb_space['learning_rate']= [0.001, 0.01, 0.1, 0.3, 0.5]
-xgb_space['reg_alpha']=[None, 0.1, 0.5]
-xgb_space['reg_lambda']=[None, 0.1, 0.5]
+xgb_space['learning_rate']= [ 0.01, 0.1, 0.3, 0.5]
+xgb_space['gamma']= [0, 0.5, 1]
+# xgb_space['reg_alpha']=[None, 0.1, 0.5]
+# xgb_space['reg_lambda']=[None, 0.1, 0.5]
 
-xgb_search = GridSearchCV(xgb_model, xgb_space, scoring = scoring, cv=xgb_cv, n_jobs=5, verbose=2, refit = 'balanced_accuracy')
+xgb_search = GridSearchCV(xgb_model, xgb_space, scoring = scoring, cv=xgb_cv, n_jobs=7, verbose=2, refit = 'balanced_accuracy')
 xgb_result = xgb_search.fit(X_train, Y_train)
 
 
@@ -535,9 +540,11 @@ dtr_result_df = (
 
 dtr_result_df.to_csv('dtr_test1.csv')
 
+
+
 ############################
 ##### go predict with best 
-
+from sklearn.metrics import zero_one_loss 
 print('Best Score: %s' % xgb_result.best_score_)
 print('Best Hyperparameters: %s' % xgb_result.best_params_)
 
@@ -549,4 +556,84 @@ mod_best.fit(X_train, Y_train)
 mod_pred = mod_best.predict(X_validation)
 print("Balanced_Accuracy", balanced_accuracy_score(Y_validation, mod_pred))
 print("Precision_Accuracy", precision_score(Y_validation, mod_pred))
+print ("Zero one Loss", zero_one_loss(Y_validation, mod_pred, normalize=False))
+
+#gbm
+gbmB =GradientBoostingClassifier(random_state=42,
+                         n_estimators=200, learning_rate=0.5)
+
+
+gbmB.fit(X_train, Y_train)
+gbmB_pred = gbmB.predict(X_validation)
+print("Balanced_Accuracy", balanced_accuracy_score(Y_validation, gbmB_pred))
+print("Precision_Accuracy", precision_score(Y_validation, gbmB_pred))
+print ("Zero one Loss", zero_one_loss(Y_validation, gbmB_pred, normalize=False))
+
+
+# ridge
+ridgeB = LogisticRegression(random_state=42, penalty='l2', C=50, solver='liblinear')
+ridgeB.fit(X_train, Y_train)
+ridgeB_pred = ridgeB.predict(X_validation)
+print("Balanced_Accuracy", balanced_accuracy_score(Y_validation, ridgeB_pred))
+print("Precision_Accuracy", precision_score(Y_validation, ridgeB_pred))
+print ("Zero one Loss", zero_one_loss(Y_validation, ridgeB_pred, normalize=False))
+
+
+
+# lasso
+lassoB = LogisticRegression(random_state=42, penalty='l1', C=50, solver='saga')
+lassoB.fit(X_train, Y_train)
+lassoB_pred = lassoB.predict(X_validation)
+print("Balanced_Accuracy", balanced_accuracy_score(Y_validation, lassoB_pred))
+print("Precision_Accuracy", precision_score(Y_validation, lassoB_pred))
+print ("Zero one Loss", zero_one_loss(Y_validation, lassoB_pred, normalize=False))
+
+
+# ela
+elaB = LogisticRegression(random_state=42, solver='saga', C=50, l1_ratio=0.5)
+elaB.fit(X_train, Y_train)
+elaB_pred = elaB.predict(X_validation)
+print("Balanced_Accuracy", balanced_accuracy_score(Y_validation, elaB_pred))
+print("Precision_Accuracy", precision_score(Y_validation, elaB_pred))
+print ("Zero one Loss", zero_one_loss(Y_validation, elaB_pred, normalize=False))
+
+
+
+# rf
+rfB = RandomForestClassifier(random_state=42, criterion='gini', max_depth=50, n_estimators=200)
+rfB.fit(X_train, Y_train)
+rfB_pred = rfB.predict(X_validation)
+print("Balanced_Accuracy", balanced_accuracy_score(Y_validation, rfB_pred))
+print("Precision_Accuracy", precision_score(Y_validation, rfB_pred))
+print ("Zero one Loss", zero_one_loss(Y_validation, rfB_pred, normalize=False))
+
+
+# dtr
+dtrB = DecisionTreeClassifier(criterion='gini', max_depth=20, random_state=42)
+dtrB.fit(X_train, Y_train)
+dtrB_pred = dtrB.predict(X_validation)
+print("Balanced_Accuracy", balanced_accuracy_score(Y_validation, dtrB_pred))
+print("Precision_Accuracy", precision_score(Y_validation, dtrB_pred))
+print ("Zero one Loss", zero_one_loss(Y_validation, dtrB_pred, normalize=False))
+
+
+# svm
+svmB = LinearSVC(dual=False, penalty='l2', C=50)
+svmB.fit(X_train, Y_train)
+svmB_pred = svmB.predict(X_validation)
+print("Balanced_Accuracy", balanced_accuracy_score(Y_validation, svmB_pred))
+print("Precision_Accuracy", precision_score(Y_validation, svmB_pred))
+print ("Zero one Loss", zero_one_loss(Y_validation, svmB_pred, normalize=False))
+
+
+
+#lda
+ldaB = LinearDiscriminantAnalysis(shrinkage='auto', solver='lsqr')
+ldaB.fit(X_train, Y_train)
+ldaB_pred = ldaB.predict(X_validation)
+print("Balanced_Accuracy", balanced_accuracy_score(Y_validation, ldaB_pred))
+print("Precision_Accuracy", precision_score(Y_validation, ldaB_pred))
+print ("Zero one Loss", zero_one_loss(Y_validation, ldaB_pred, normalize=False))
+
+
 
