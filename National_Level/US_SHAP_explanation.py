@@ -1,8 +1,8 @@
-''' import again dataset and process it, without leave-one out after dummy 
-feature creation, as tree-methods and particularly XGBoost 
-do not suffer from the problem of perfect collinearity
+''' import again dataset and process it.
 NOTE: due to observation shuffling and its stochastic nature, slight 
-changes in predictive as well as explainability results may occur'''
+changes in predictive as well as explainability results may occur
+To replicate the results of the paper, skip the data preparation phase by 
+uncommenting and running pickle import lines (from 249 on).'''
 
 
 df = pd.read_csv('SHR76_19.csv', delimiter=',')
@@ -244,6 +244,14 @@ X_train = pickle.load(open("USAShap_Xtrain_set.pkl", "rb"))
 X_validation =  pickle.load(open("USAShap_Xvalidation_set.pkl", "rb"))
 Y_train= pickle.load(open("USAShap_Ytrain_set.pkl", "rb"))
 Y_validation =  pickle.load(open("USAShap_Yvalidation_set.pkl", "rb"))
+
+
+# to use as train and test sets those created in the grid search script (as done in the paper, uncomment and run comments below
+#X_train = pickle.load(open("USA_Xtrain_set.pkl", "rb"))
+#X_validation =  pickle.load(open("USA_Xvalidation_set.pkl", "rb"))
+#Y_train= pickle.load(open("USA_Ytrain_set.pkl", "rb"))
+#Y_validation =  pickle.load(open("USA_Yvalidation_set.pkl", "rb"))
+
 
 # repeat best performing model fit (XGBoost, 200 learners, 0.5 learning rate)
 
