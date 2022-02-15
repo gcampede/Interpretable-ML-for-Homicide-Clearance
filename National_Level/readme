@@ -1,3 +1,12 @@
-These scripts refer to analysis at the national level, without state-wise distinction. To avoid processing data from the ground-up 
-(gathering them from the MAP project website), the .pkl files allow to replicate the analyses using the same train/test sets used in the study. 
+These scripts refer to analysis at the national level, without state-wise distinction. 
+To avoid processing data from the ground-up (gathering them from the MAP project website), 
+you can navigate the following link to "Zenodo" (https://zenodo.org/record/6088039#.YgtlEPjSJhE)
+and download the .pkl files allow to replicate  the analyses using the same train/test sets
+employed in the study.  For the national-level models, the file are:
+
+- USA_Xtrain_set.pkl
+- USA_Xvalidation_set.pkl
+- USA_Ytrain_set.pkl	
+- USA_Yvalidation_set.pkl
+
 To upload them directly, go to "pickle.dump" commands in the "US_grid_search_models.py" file.
