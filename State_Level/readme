@@ -1,2 +1,16 @@
 To avoid processing data from the ground-up  (gathering them from the MAP project website), the .pkl files allow to replicate the analyses using the same train/test sets used in the study. 
 To upload them directly, go to "pickle.dump" commands in the "state_wise_prediction.py" file.
+
+These scripts refer to analysis at the state-level.
+To avoid processing data from the ground-up (gathering them from the MAP project website), 
+you can navigate the following link to "Zenodo" (https://zenodo.org/record/6088039#.YgtlEPjSJhE)
+and download the .pkl files allow to replicate  the analyses using the same train/test sets
+employed in the study.  For the national-level models, the file are:
+
+- stateSHAP_Xtest_sets.pkl
+- stateSHAP_Xtrain_sets.pkl
+- stateSHAP_Ytest_sets.pkl
+- stateSHAP_Ytrain_sets.pkl
+
+
+To upload them directly, go to "pickle.dump" commands in the "state_wise_prediction.py" file.
