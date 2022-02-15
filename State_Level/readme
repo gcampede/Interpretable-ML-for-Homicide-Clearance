@@ -1,0 +1,2 @@
+To avoid processing data from the ground-up  (gathering them from the MAP project website), the .pkl files allow to replicate the analyses using the same train/test sets used in the study. 
+To upload them directly, go to "pickle.dump" commands in the "state_wise_prediction.py" file.
