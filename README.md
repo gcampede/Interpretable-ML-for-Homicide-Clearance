@@ -1,5 +1,5 @@
-# Interpretable ML for Homicide Clearance
-This repository contains data and Python code to replicate the analysis presented in the paper "Interpretable Machine Learning for Predicting and Explaining Cleared Homicides in the United States" (tentative title).
+# Explainable ML for Homicide Clearance
+This repository contains data and Python code to replicate the analysis presented in the paper "Explainable Machine Learning for Predicting and Explaining Cleared Homicides in the United States" (tentative title).
 
 Data for this project and paper have to be downloaded directly at http://www.murderdata.org/p/data-docs.html. Data credits go to the *Murder Accountability Project*, an initiative seeking to improve transparency and accountability of law enforcement in relation to murder investigations in the United States.
 
